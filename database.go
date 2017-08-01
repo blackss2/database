@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/suapapa/go_hangul/encoding/cp949"
 )
@@ -31,6 +32,7 @@ type Database struct {
 	postConnect []string //TODO
 	isForceUTF8 bool //TODO
 	alives int64
+	pingInterval time.Duration
 }
 
 func NewDatabase(driver string, connString string, maxConn int64) *Database {
@@ -64,6 +66,24 @@ func (db *Database) executeOpen() error {
 		}
 	}
 	return err
+}
+
+func (db *Database) BeginAutoPing(interval time.Duration) {
+	isNew := (db.pingInterval == 0)
+	db.pingInterval = interval
+
+	if isNew {
+		go func() {
+			for db.pingInterval > 0 {
+				time.Sleep(db.pingInterval)
+				db.inst.Ping()
+			}
+		}()
+	}
+}
+
+func (db *Database) EndAutoPing() {
+	db.pingInterval = 0
 }
 
 func (db *Database) Close() error {
