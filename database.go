@@ -299,6 +299,8 @@ func (db *Database) InsertJSON(table string, value interface{}) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer rows.Close()
+
 	rows.Next()
 	return rows.FetchArray()[0].(int64), nil
 }
@@ -393,10 +395,12 @@ func (db *Database) UpdateJSON(table string, id int64, value interface{}) error 
 		WHERE id='%d'
 	`, id))
 
-	_, err = db.Query(query.String(), values...)
+	rows, err := db.Query(query.String(), values...)
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+
 	return nil
 }
 
@@ -467,10 +471,12 @@ func (db *Database) UpdateHash(table string, id int64, hash map[string]interface
 		WHERE id='%d'
 	`, id))
 
-	_, err := db.Query(query.String(), values...)
+	rows, err := db.Query(query.String(), values...)
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
+
 	return nil
 }
 
