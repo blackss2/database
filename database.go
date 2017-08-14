@@ -78,7 +78,7 @@ func (db *Database) BeginAutoPing(interval time.Duration) {
 				time.Sleep(db.pingInterval)
 				//db.inst.Ping()
 				rows, _ := db.inst.Query("SELECT 1;")
-				if(rows != null) {
+				if rows != nil {
 					rows.Close()
 				}
 			}
